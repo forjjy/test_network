@@ -1,0 +1,7 @@
+<html title="Add Network"
+      xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+      xmlns:p="tapestry:parameter">
+
+    <t:test_network.AddNetwork></t:test_network.AddNetwork>
+
+</html>

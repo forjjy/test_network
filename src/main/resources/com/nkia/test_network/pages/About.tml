@@ -1,0 +1,15 @@
+<html title="About tutorial1"
+      xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+      xmlns:p="tapestry:parameter">
+
+    <p>About tutorial1 application ...</p>
+    
+    
+    <p>
+    
+
+    <t:AddServer></t:AddServer>
+    <!-- <t:ExtGrid id="literal:id test" title="literal:title test"></t:ExtGrid>
+    <t:ViewServer></t:ViewServer>  -->
+    </p>
+</html>

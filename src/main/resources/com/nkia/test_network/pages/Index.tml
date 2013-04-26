@@ -1,0 +1,171 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+<head>
+     
+<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=IE10"/>
+<!--[if IE]>    
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>    
+<script>        
+    window.attachEvent("onload", function() {            
+        CFInstall.check({                
+            mode: "overlay"            
+        });        
+    });    
+</script>
+<![endif]-->
+<script>
+var mainBody;
+
+Ext.EventManager.onWindowResize(function(w, h){
+    mainBody.doComponentLayout();
+});
+
+
+
+
+var headerPanel = Ext.create('Cygnus.panel.Panel',{
+        title: 'Network Header Content',
+        id: 'header_content',
+        height: 150,
+        region:'north',
+        contentEl:'header_menu',
+        cmargins: '5 0 0 0'
+    }
+);
+
+
+var leftPanel = Ext.create('Cygnus.panel.Panel',{
+         title: 'Navigation',
+         id: 'left_content',
+         region:'west',
+         cmargins: '5 5 0 0',
+         width: 175,
+         minSize: 100,
+         maxSize: 250,
+         layout: 'fit'
+    }
+);
+
+var rightPanel = Ext.create('Cygnus.panel.Panel',{
+        title: 'toolTip',
+        id: 'right_content',
+        region:'east',
+        cmargins: '5 5 0 0',
+        width: 175,
+        minSize: 100,
+        maxSize: 250,
+        layout:'fit'
+    }
+);
+
+var mainPanel = Ext.create('Cygnus.panel.Panel',{
+        title: 'Main Content',
+        id: 'main_content',
+        collapsible: false,
+        region:'center'
+    }
+);
+
+
+var footerPanel = Ext.create('Cygnus.panel.Panel',{
+        title: 'Footer',
+        region: 'south',
+        height: 150,
+        minSize: 75,
+        maxSize: 250,
+        cmargins: '5 0 0 0'
+    }
+);
+
+Ext.onReady(function(){
+    
+    mainBody = Ext.create('Cygnus.panel.Panel', {
+        renderTo: Ext.getBody(),
+        width: '100%',
+        height: '100%',
+        layout:'border',
+        defaults: {
+            collapsible: true,
+            split: true,
+            bodyStyle: 'padding:15px'
+        },
+        items: [
+            headerPanel,
+            footerPanel,
+            leftPanel,
+            rightPanel, 
+            mainPanel
+        ]
+    });
+
+
+
+
+    //NkiaCygnus.addComponent(leftPanel,'NetworkTreePage',true);
+    //NkiaCygnus.addComponent(rightPanel,'NetworkTreePage',true);
+});
+
+
+function goList(){
+    NkiaCygnus.addComponent(mainPanel,'test_network/NetworkListPage',true);
+}
+
+
+function goAdd(){
+    NkiaCygnus.addComponent(mainPanel,'test_network/AddNetworkPage',true);
+}
+
+
+
+// add Networks
+function addNetworks(){
+    Ext.Ajax.request({
+        url: '/tutorial1/AddNetworkPage:AddNetworks',
+        params : { },
+        method:'POST',
+        success: function(response, opts) { 
+            var jsondata = Ext.decode(response.responseText);
+            NkiaCygnus.alert(jsondata.result, jsondata.message);
+        },
+        failure: function(response, opts) {
+            NkiaCygnus.alert('', 'server-side failure with status code ' + response.status);
+        }
+    });
+}
+
+
+
+//Delete Networks
+function deleteNetworks(){
+ Ext.Ajax.request({
+     url: '/tutorial1/AddNetworkPage:DeleteNetworks',
+     params : {   },
+     method:'POST',
+     success: function(response, opts) { 
+         var jsondata = Ext.decode(response.responseText);
+         NkiaCygnus.alert(jsondata.result, jsondata.message);
+     },
+     failure: function(response, opts) {
+         NkiaCygnus.alert('', 'Network-side failure with status code ' + response.status);
+     }
+ });
+}
+
+</script>
+</head> 
+    
+        <!-- start header -->
+        <div id="header_menu">
+                    <div id="">
+                    <p>
+                    <div><a href="Network">Network</a></div>
+                    </p>
+                    </div>
+            <br/>
+                    <div id="toolbar">
+                    <a href="javascript:goList();">List</a> |
+                    <a href="javascript:goAdd();">Add</a>
+                    </div>
+        </div>
+        
+</html>

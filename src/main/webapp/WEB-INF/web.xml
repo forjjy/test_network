@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+        PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+    <display-name>NKIA Test Tapestry 5 Application</display-name>
+
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath*:META-INF/spring/applicationContext*.xml</param-value>
+    </context-param>
+    
+    <context-param>
+        <!-- The only significant configuration for Tapestry 5, this informs Tapestry
+of where to look for pages, components and mixins. -->
+        <param-name>tapestry.app-package</param-name>
+        <param-value>com.nkia.test_network</param-value>
+    </context-param>
+    
+    <!--
+    Specify some additional Modules for two different execution
+    modes: development and qa.
+    Remember that the default execution mode is production
+    -->
+    <context-param>
+        <param-name>tapestry.development-modules</param-name>
+        <param-value>
+            com.nkia.test_network.services.DevelopmentModule
+        </param-value>
+    </context-param>
+    <context-param>
+        <param-name>tapestry.qa-modules</param-name>
+        <param-value>
+            com.nkia.test_network.services.QaModule
+        </param-value>
+    </context-param>
+    <filter>
+        <filter-name>app</filter-name>
+        <!-- <filter-class>org.apache.tapestry5.TapestryFilter</filter-class> -->
+        <filter-class>org.apache.tapestry5.spring.TapestrySpringFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>app</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <servlet>
+        <servlet-name>H2Console</servlet-name>
+        <servlet-class>org.h2.server.web.WebServlet</servlet-class>
+        <init-param>
+            <param-name>webAllowOthers</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>H2Console</servlet-name>
+        <url-pattern>/console/*</url-pattern>
+    </servlet-mapping>    
+</web-app>
+      

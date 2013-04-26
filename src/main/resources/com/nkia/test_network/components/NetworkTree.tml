@@ -1,0 +1,145 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+
+<script>
+    //create tree Panel
+    function networkTreePanel(_title, _url, _pos) {
+        var result_store = Ext.create('Cygnus.data.TreeStore', {
+            storeId : NkiaCygnus.randomString(20),
+            proxy : {
+                type : 'ajax',
+                url : _url,
+                reader : {
+                    type : 'json',
+                    root : 'root'
+
+                },
+                folderSort : true,
+                sorters : [ {
+                    property : 'text',
+                    direction : 'ASC'
+                } ]
+
+            }
+        });
+
+        var result_treePanel = Ext
+                .create(
+                        'Cygnus.tree.Panel',
+                        {
+                            id : 'network_tree',
+                            title : _title,
+                            width : '100%',
+                            height : '100%',
+                            rootVisible : false,
+                            lines : false,
+                            autoScroll : true,
+                            renderTo : _pos,
+                            store : result_store,                
+                            viewConfig: 
+                            {
+                                plugins:{ ptype: 'treeviewdragdrop' }
+                            },
+                            listeners: {
+                                itemclick: function(view,record,item,index,eventObj) {
+                                    
+                                    
+                                    Ext.Msg.alert('Clicked on a Tree Node',                      
+                                            'Node id: ' + record.get('id') + '\n' +                     
+                                            'Node Text: ' + record.get('text') + '\n' +                     
+                                            'Parent Node id: ' + record.get('parentId') + '\n' +                     
+                                            'Is it a leaf?: ' + record.get('leaf') + '\n' +                     
+                                            'No of Children: ' + record.childNodes.length                
+                                    );
+                                    
+                                }
+                            }
+
+                            /*,
+                            tbar : [ {
+                                text : 'add node',
+                                handler : function() {
+                                    if (tree.getSelectionModel().hasSelection()) {
+                                        var selectedNode = tree.getSelectionModel().getSelection();
+                                        
+                                        Ext.MessageBox
+                                                .prompt(
+                                                        'Add Node',
+                                                        'Please enter node text:',
+                                                        function(btn, text) {
+                                                            if (btn == 'ok') {
+                                                                // send node text and parent id to network using ajax
+                                                                Ext.Ajax
+                                                                        .request({
+                                                                            url : 'addnode.php',
+                                                                            params : {
+                                                                                nodetext : text,
+                                                                                parentid : selectedNode[0].data.id
+                                                                            },
+                                                                            success : function(
+                                                                                    response) {
+                                                                                var id = response.responseText;
+                                                                                if (id > 0) {
+                                                                                    selectedNode[0]
+                                                                                            .set(
+                                                                                                    'leaf',
+                                                                                                    false);
+                                                                                    selectedNode[0]
+                                                                                            .appendChild({
+                                                                                                leaf : true,
+                                                                                                text : text,
+                                                                                                id : id
+                                                                                            });
+                                                                                    tree
+                                                                                            .getView()
+                                                                                            .refresh();
+                                                                                    selectedNode[0]
+                                                                                            .expand();
+                                                                                }
+                                                                            }
+                                                                        });
+                                                            }
+                                                        });
+                                        
+                                    } else {
+                                        Ext.MessageBox.alert('Alert',
+                                                        'Please select parent node to insert a new node!');
+                                    }
+                                }
+                            } ]
+                            */
+                        });
+
+        return result_treePanel;
+    }
+
+    Ext.onReady(function() {
+
+        Ext.EventManager.onWindowResize(function() {
+            treePanel.setSize(undefined, undefined);
+        });
+
+        //
+        var _title = 'Network Tree';
+        var _url = '${url}:GetLeafs';
+        var _position = 'div_panel_${divId}';
+
+        var treePanel = networkTreePanel(_title, _url, _position);
+        //var treePanel = NkiaCygnus.treePanel(_title, _url, _position);
+
+    });
+    
+    /*
+    Ext.get('network_tree').on('dblclick', function(node, event){
+        alert('test')
+        if(node.isLeaf()){
+            // do what you need to with the node.
+        }
+    });
+    */
+</script>
+<body>
+ <div id="div_panel_${divId}"></div>
+</body>
+
+</html>

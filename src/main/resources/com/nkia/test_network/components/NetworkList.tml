@@ -1,0 +1,205 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+
+<script>
+Ext.require([
+             'Ext.grid.*',
+             'Ext.data.*',
+             'Ext.util.*',
+             'Ext.grid.PagingScroller'
+         ]);
+         
+Ext.onReady(function() {
+    
+    //
+    var _modelName = 'Cygnus.data.Model.NetworkDomain';
+    var _fields = ['id','name','hostname','ipAddress','community','description'];
+    var _url = '${url}:GetNetworks';
+
+	//var Cygnus = new NkiaCygnus();
+	var myStore = NkiaCygnus.dataStore(_modelName, _fields, _url);
+	myStore.guaranteeRange(0, 199);
+    myStore.load();
+    
+    Ext.EventManager.onWindowResize(function () {
+	   networkGrid.setSize(undefined, undefined);
+    });
+
+    var networkGrid = Ext.create('Cygnus.grid.Panel', {
+    	 id : 'network_grid',
+         title: 'Network List',
+         store: myStore,
+         verticalScrollerType: 'paginggridscroller',
+         columns: [
+                   { header: 'ID',  dataIndex: 'id', hidden: true },
+                   { header: 'Name', dataIndex: 'name', flex: 1,resizable:true },
+                   { header: 'Hostname', dataIndex: 'hostname', flex: 1,resizable:true },
+                   { header: 'IP', dataIndex: 'ipAddress', flex: 1,resizable:true },
+                   { header: 'Community', dataIndex: 'community', flex: 1,resizable:true },
+                   { header: 'Description', dataIndex: 'description', flex: 1,resizable:true }, 
+                   {
+                       xtype: 'actioncolumn',
+                       width: 40,
+                       items: [{
+                           icon: '/tutorial1/images/delete_icon.png',
+                           handler: function(grid, rowIndex, colindex) {
+                        	   var record = grid.getStore().getAt(rowIndex); 
+                        	   //alert(record.get("id"));
+                        	   deleteNetwork(grid, record, record.get("id"));
+                           }
+                       }]
+                   }
+
+               ],        
+         stripeRows: true,
+         //columnLines: true,
+         height: '100%',
+         width: '100%',    
+         listeners: {
+        	 itemdblclick: function(dataview, record, index, item, e) {
+                 //alert('dblclick');
+                 editNetwork(record);
+             }
+         },
+
+         renderTo: "div_panel_${divId}"
+    });
+     
+    //Update Network
+    var win = null;
+    function editNetwork(record){
+	    
+        var networkForm = new Ext.create('Cygnus.form.FormPanel', {   
+            //title : null,
+            id: NkiaCygnus.randomString(),//'networkInfoPanel',
+            labelWidth: 110,
+            width : '100%',
+            height : '100%',
+            defaultType: 'textfield',
+            items : [ {
+                xtype: 'hidden',
+                fieldLabel : 'Id',
+                name:'id',
+                value : record.get('id')
+            }, {
+                xtype: 'textfield',
+                fieldLabel : 'Name',
+                name:'name',
+                value : record.get('name'),
+                allowBlank : false
+            }, {
+                xtype: 'textfield',
+                fieldLabel : 'Hostname',
+                name:'hostname',
+                value : record.get('hostname'),
+                allowBlank : false
+            }, {
+                xtype: 'textfield',
+                fieldLabel : 'Ip Address',
+                name:'ipAddress',
+                value : record.get('ipAddress'),
+                allowBlank : false
+            }, {
+                xtype: 'textfield',
+                fieldLabel : 'Community',
+                name:'community',
+                value : record.get('community'),
+                allowBlank : false
+            }, {
+                xtype: 'textfield',
+                fieldLabel : 'Description',
+                name:'description',
+                value : record.get('description'),
+                allowBlank : true
+            } ] ,            
+            buttons : [{
+                text : 'Save',
+                formBind:true,
+                width:60,
+                handler : function(){
+        
+                    var form = this.up('form').getForm();
+        
+                    if (form.isValid()) {
+                        
+                        Ext.Ajax.request({
+                           url: '${url}:UpdateNetwork',
+                           params:form.getValues(),
+                           method:'POST',
+                           success: function(response, opts) {
+                               var jsondata = Ext.decode(response.responseText);
+                               NkiaCygnus.alert(jsondata.result, jsondata.message);
+                               
+                               if(jsondata.result == "success"){                                     
+                                   setRecord(record);
+                                   winClose(win);
+                               }
+                           },
+                           failure: function(response, opts) {
+                               NkiaCygnus.alert('', 'network-side failure with status code ' + response.status);
+                           }
+                        });
+                    } else {
+                	    NkiaCygnus.alert('', 'Not valid');
+                    }
+                }
+        
+            }]
+        });
+        
+        function setRecord(record){            
+            record.set("name", Ext.get('name').getValue());
+            record.set("hostname", Ext.get('hostname').getValue());
+            record.set("ipAddress", Ext.get('ipAddress').getValue());
+            record.set("community", Ext.get('community').getValue());
+            record.set("description", Ext.get('description').getValue());
+            record.commit();
+        }
+        
+        function winClose(win){
+            //close edit view
+            win.removeAll();
+            win.destroy();
+        }
+        
+        if(win != null){
+            winClose(win);
+        }
+        
+        win = Ext.create('Cygnus.window.Window', {
+            id : 'networkInfoWindow',
+            title : 'Network Info',
+            width: 300,
+            height:250,
+            items :[networkForm]
+        });
+        win.show();
+    }
+     
+    // Delete Network
+    function deleteNetwork(grid, row, network_id){
+    	Ext.Ajax.request({
+            url: '${url}:Delete',
+            params : {                             
+                 id:network_id              
+            },
+            method:'POST',
+            success: function(response, opts) { 
+                grid.store.remove(row);
+
+                var jsondata = Ext.decode(response.responseText);
+                NkiaCygnus.alert(jsondata.result, jsondata.message);
+            },
+            failure: function(response, opts) {
+        	    NkiaCygnus.alert('', 'network-side failure with status code ' + response.status);
+            }
+        });
+    }
+	
+});
+</script>
+<body>
+<div id="div_panel_${divId}"></div>
+</body>
+
+</html>
